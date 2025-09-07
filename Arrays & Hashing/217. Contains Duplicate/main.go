@@ -1,13 +1,31 @@
 package main
 
 func containsDuplicate(nums []int) bool {
+	n := len(nums)
+
+	if n <= 1 {
+		return false
+	}
+
 	m := make(map[int]struct{})
 	v := struct{}{}
-	for _, n := range nums {
-		if _, ok := m[n]; ok {
+
+	for i, j := 0, n-1; i <= j; i, j = i+1, j-1 {
+		ni := nums[i]
+		if _, ok := m[ni]; ok {
 			return true
 		}
-		m[n] = v
+		m[ni] = v
+
+		if i == j {
+			break
+		}
+
+		nj := nums[j]
+		if _, ok := m[nj]; ok {
+			return true
+		}
+		m[nj] = v
 	}
 
 	return false
