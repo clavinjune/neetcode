@@ -1,23 +1,26 @@
 package main
 
-import (
-	"fmt"
-	"io"
-)
-
 type Heap struct {
 	core []int
 }
 
-func (h *Heap) Push(t int) {
-	h.core = append(h.core, t)
-	h.HeapifyUp(len(h.core) - 1)
+func NewHeap(nums []int) *Heap {
+	n := len(nums)
+	h := &Heap{nums}
+	if n == 0 {
+		return h
+	}
+
+	for i := (n / 2) - 1; i >= 0; i-- {
+		h.HeapifyDown(i)
+	}
+	return h
 }
 
-func (h *Heap) Pop() (int, error) {
+func (h *Heap) Pop() (int, bool) {
 	n := len(h.core)
 	if n == 0 {
-		return 0, io.EOF
+		return 0, false
 	}
 	root := h.core[0]
 	h.core[0] = h.core[n-1]
@@ -27,7 +30,7 @@ func (h *Heap) Pop() (int, error) {
 		h.HeapifyDown(0)
 	}
 
-	return root, nil
+	return root, true
 }
 
 func (h *Heap) HeapifyDown(index int) {
@@ -49,41 +52,24 @@ func (h *Heap) HeapifyDown(index int) {
 	}
 }
 
-func (h *Heap) HeapifyUp(index int) {
-	if index == 0 {
-		return
-	}
-	parent := (index - 1) / 2
-
-	if h.core[index] < h.core[parent] {
-		h.core[index], h.core[parent] = h.core[parent], h.core[index]
-		h.HeapifyUp(parent)
-	}
-}
-
 func longestConsecutive(nums []int) int {
-	var h Heap
-	for i := range nums {
-		h.Push(nums[i])
-	}
-
+	h := NewHeap(nums)
 	var cont, latestCont, before int
-	n, err := h.Pop()
-	if err == io.EOF {
+	n, ok := h.Pop()
+	if !ok {
 		return 0
 	}
 	before = n
 	cont = 1
 
 	for {
-		n, err := h.Pop()
-		if err == io.EOF {
+		n, ok := h.Pop()
+		if !ok {
 			break
 		}
 		if before == n {
 			continue
 		}
-		fmt.Println(before, n, cont, latestCont)
 		if before-n == -1 || before-n == 1 {
 			cont += 1
 		} else {
